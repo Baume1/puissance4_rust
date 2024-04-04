@@ -1,4 +1,5 @@
 use std::io;
+mod tests_victoire;
 
 fn affiche_grille(tableau: &Vec<Vec<char>>) {
     println!("┌───┬───┬───┬───┬───┬───┬───┐");
@@ -35,16 +36,13 @@ fn colonne_libre(tableau: &Vec<Vec<char>>, colonne: usize) -> bool {
 }
 
 fn egalite(tableau: &Vec<Vec<char>>) -> bool {
+    let mut resultat = true;
     for cpt in (0..7).step_by(2) {
-        if !colonne_libre(tableau, cpt) {
-            return true;
+        if colonne_libre(tableau, cpt) {
+            resultat = false; // Si il y a ne serait-ce qu'une colonne de libre -> alors c'est pas égalité
         }
     }
-    return false;
-}
-
-fn gagne(_tableau: &Vec<Vec<char>>, _joueur: i32) -> bool {
-    return false;
+    return resultat;
 }
 
 fn recuperer_input() -> i32 {
@@ -91,17 +89,17 @@ fn place_jeton(tableau: &mut Vec<Vec<char>>, colonne: usize, symbole_joueur: cha
 
 fn tour_joueur(tableau: &mut Vec<Vec<char>>, joueur: i32) {
     println!("Joueur {}, à vous de jouer !", joueur);
-    let mut pos_joueur = recuperer_input();
-    if pos_joueur < 1 || pos_joueur >= 7 {
+    let pos_joueur = recuperer_input() - 1; // Car le label des colonnes commence à 1
+
+    if pos_joueur < 0 || pos_joueur >= 7 {
         println!("Position invalide");
         return tour_joueur(tableau, joueur);
     } else if !colonne_libre(tableau, pos_joueur as usize) {
         // Si la colonne n'est PAS libre
         println!("Colonne pleine.");
         return tour_joueur(tableau, joueur);
-    } else {
-        pos_joueur -= 1; // Car le label des colonnes commence à 1
     }
+
     let ligne_max = 5;
     if joueur == 1 {
         place_jeton(tableau, pos_joueur as usize, 'X', ligne_max);
@@ -112,18 +110,23 @@ fn tour_joueur(tableau: &mut Vec<Vec<char>>, joueur: i32) {
 
 fn jouer(tableau: &mut Vec<Vec<char>>) {
     let mut joueur = 1; // Joueur 1 = X, joueur 2 = O
-
+    let mut bool_victoire = false;
+    let mut bool_egalite = false;
     affiche_grille(tableau);
 
     println!("Le joueur 1 utilise les pions 'X' et le joueur 2 les pions 'O'");
-    while !egalite(tableau) && !gagne(tableau, joueur) {
+    while !bool_egalite && !bool_victoire {
+        // Tant que personne n'a gagné et qu'il reste des colonnes libres
         tour_joueur(tableau, joueur);
         affiche_grille(tableau);
 
-        if gagne(tableau, joueur) {
+        bool_victoire = tests_victoire::gagne(tableau, joueur);
+        bool_egalite = egalite(tableau);
+
+        if bool_victoire {
             println!("\nLe joueur {} a gagné !", joueur);
         }
-        if egalite(tableau) {
+        if bool_egalite {
             println!("\nEgalité, toutes les colonnes sont pleines");
         }
 

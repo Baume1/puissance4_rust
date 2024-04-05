@@ -7,8 +7,11 @@ Ce projet est une implémentation du jeu de Puissance 4 écrite en Rust. Le prog
 
 ## Démarrage
 
-Pour lancer le programme, il suffit d'exécuter la commande suivante dans votre terminal :
+Pour lancer le programme, il suffit d'exécuter les commandes suivantes dans votre terminal :
 
+```
+cargo build
+```
 ```
 cargo run
 ```
